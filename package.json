@@ -1,6 +1,6 @@
 {
   "name": "language-streem",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Streem language support in Atom",
   "engines": {
     "atom": "*",
