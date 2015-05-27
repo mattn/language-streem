@@ -1,0 +1,941 @@
+'name': 'Streem'
+'scopeName': 'source.streem'
+'fileTypes': [
+  'strm'
+]
+'firstLineMatch': '^#!\\s*/.*\\bstreem|^#\\s+-\\*-\\s*streem\\s*-\\*-'
+'patterns': [
+  {
+    'comment': 'everything being a reserved word, not a value and needing a \'end\' is a..'
+    'match': '(?<!\\.)\\b(else|elsif|for|if|then|while)\\b(?![?!])'
+    'name': 'keyword.control.streem'
+  }
+  {
+    'comment': 'contextual smart pair support'
+    'match': '(?<=\\{)(\\s+)'
+    'name': 'meta.syntax.streem.start-block'
+  }
+  {
+    'match': '\\bnil\\b(?![?!])'
+    'name': 'constant.language.nil.streem'
+  }
+  {
+    'match': '\\b(true|false)\\b(?![?!])'
+    'name': 'constant.language.boolean.streem'
+  }
+  {
+    'match': '\\b(__(FILE|LINE)__)\\b(?![?!])'
+    'name': 'variable.language.streem'
+  }
+  {
+    'match': '\\bself\\b(?![?!])'
+    'name': 'variable.language.self.streem'
+  }
+  {
+    'captures':
+      '1':
+        'name': 'punctuation.definition.variable.streem'
+    'match': '(@)[a-zA-Z_]\\w*'
+    'name': 'variable.other.readwrite.instance.streem'
+  }
+  {
+    'captures':
+      '1':
+        'name': 'punctuation.definition.variable.streem'
+    'match': '(@@)[a-zA-Z_]\\w*'
+    'name': 'variable.other.readwrite.class.streem'
+  }
+  {
+    'captures':
+      '1':
+        'name': 'punctuation.definition.variable.streem'
+    'match': '(\\$)[a-zA-Z_]\\w*'
+    'name': 'variable.other.readwrite.global.streem'
+  }
+  {
+    'captures':
+      '1':
+        'name': 'punctuation.definition.variable.streem'
+    'match': '(\\$)(!|@|&|`|\'|\\+|\\d+|~|=|/|\\\\|,|;|\\.|<|>|_|\\*|\\$|\\?|:|"|-[0adFiIlpv])'
+    'name': 'variable.other.readwrite.global.pre-defined.streem'
+  }
+  {
+    'begin': '\\b(ENV)\\['
+    'beginCaptures':
+      '1':
+        'name': 'variable.other.constant.streem'
+    'end': '\\]'
+    'name': 'meta.environment-variable.streem'
+    'patterns': [
+      {
+        'include': '$self'
+      }
+    ]
+  }
+  {
+    'match': '\\b[A-Z]+\\b'
+    'name': 'variable.other.constant.streem'
+  }
+  {
+    'match': '\\b(0[xX]\\h(?>_?\\h)*|\\d(?>_?\\d)*(\\.(?![^[:space:][:digit:]])(?>_?\\d)*)?([eE][-+]?\\d(?>_?\\d)*)?|0[bB][01]+)\\b'
+    'name': 'constant.numeric.streem'
+  }
+  {
+    'comment': 'Needs higher precidence than regular expressions.'
+    'match': '(?<!\\()/='
+    'name': 'keyword.operator.assignment.augmented.streem'
+  }
+  {
+    'begin': '\''
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.streem'
+    'comment': "string literal with '' delimitor"
+    'end': '\''
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.streem'
+    'name': 'string.quoted.single.streem'
+    'patterns': [
+      {
+        'match': '\\\\\'|\\\\\\\\'
+        'name': 'constant.character.escape.streem'
+      }
+    ]
+  }
+  {
+    'begin': '"'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.streem'
+    'comment': 'string literal with interpolation and "" delimitor'
+    'end': '"'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.streem'
+    'name': 'string.quoted.double.interpolated.streem'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+    ]
+  }
+  {
+    'begin': '%x\\{'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.streem'
+    'comment': 'execute string (allow for interpolation)'
+    'end': '\\}'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.streem'
+    'name': 'string.interpolated.streem'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+      {
+        'include': '#nest_curly_i'
+      }
+    ]
+  }
+  {
+    'begin': '%x\\['
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.streem'
+    'comment': 'execute string (allow for interpolation)'
+    'end': '\\]'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.streem'
+    'name': 'string.interpolated.streem'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+      {
+        'include': '#nest_brackets_i'
+      }
+    ]
+  }
+  {
+    'begin': '%x\\<'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.streem'
+    'comment': 'execute string (allow for interpolation)'
+    'end': '\\>'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.streem'
+    'name': 'string.interpolated.streem'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+      {
+        'include': '#nest_ltgt_i'
+      }
+    ]
+  }
+  {
+    'begin': '%x\\('
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.streem'
+    'comment': 'execute string (allow for interpolation)'
+    'end': '\\)'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.streem'
+    'name': 'string.interpolated.streem'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+      {
+        'include': '#nest_parens_i'
+      }
+    ]
+  }
+  {
+    'begin': '%x([^\\w])'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.streem'
+    'comment': 'execute string (allow for interpolation)'
+    'end': '\\1'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.streem'
+    'name': 'string.interpolated.streem'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+    ]
+  }
+  {
+    'begin': '%I\\['
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.section.array.begin.streem'
+    'comment': 'array of symbols literal with interpolation and [] delimitor'
+    'end': '\\]'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.section.array.end.streem'
+    'name': 'constant.other.symbol.interpolated.streem'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+      {
+        'include': '#nest_brackets_i'
+      }
+    ]
+  }
+  {
+    'begin': '%I([^\\w])'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.section.array.begin.streem'
+    'comment': 'array of symbols literal with interpolation and wildcard delimitor'
+    'end': '\\1'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.section.array.end.streem'
+    'name': 'constant.other.symbol.interpolated.streem'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+    ]
+  }
+  {
+    'begin': '%i\\['
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.section.array.begin.streem'
+    'comment': 'array of symbols literal with [] delimitor'
+    'end': '\\]'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.section.array.end.streem'
+    'name': 'constant.other.symbol.streem'
+    'patterns': [
+      {
+        'match': '\\\\\\]|\\\\\\\\'
+        'name': 'constant.character.escape.streem'
+      }
+      {
+        'include': '#nest_brackets'
+      }
+    ]
+  }
+  {
+    'begin': '%i\\<'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.section.array.begin.streem'
+    'comment': 'array of symbols literal with {} delimitor'
+    'end': '\\}'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.section.array.end.streem'
+    'name': 'constant.other.symbol.streem'
+    'patterns': [
+      {
+        'match': '\\\\\\}|\\\\\\\\'
+        'name': 'constant.character.escape.streem'
+      }
+      {
+        'include': '#nest_curly'
+      }
+    ]
+  }
+  {
+    'begin': '%i([^\\w])'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.section.array.begin.streem'
+    'comment': 'array of symbols literal with wildcard delimitor'
+    'end': '\\1'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.section.array.end.streem'
+    'name': 'constant.other.symbol.streem'
+    'patterns': [
+      {
+        'comment': 'Cant be named because its not neccesarily an escape.'
+        'match': '\\\\.'
+      }
+    ]
+  }
+  {
+    'begin': '%W\\['
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.section.array.begin.streem'
+    'comment': 'array of strings literal with interpolation and [] delimitor'
+    'end': '\\]'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.section.array.end.streem'
+    'name': 'string.quoted.other.interpolated.streem'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+      {
+        'include': '#nest_brackets_i'
+      }
+    ]
+  }
+  {
+    'begin': '%W([^\\w])'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.section.array.begin.streem'
+    'comment': 'array of strings literal with interpolation and wildcard delimitor'
+    'end': '\\1'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.section.array.end.streem'
+    'name': 'string.quoted.other.interpolated.streem'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+    ]
+  }
+  {
+    'begin': '%w\\['
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.section.array.begin.streem'
+    'comment': 'array of strings literal with [] delimitor'
+    'end': '\\]'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.section.array.end.streem'
+    'name': 'string.quoted.other.streem'
+    'patterns': [
+      {
+        'match': '\\\\\\]|\\\\\\\\'
+        'name': 'constant.character.escape.streem'
+      }
+      {
+        'include': '#nest_brackets'
+      }
+    ]
+  }
+  {
+    'begin': '%w\\('
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.section.array.begin.streem'
+    'comment': 'array of strings literal with () delimitor'
+    'end': '\\)'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.section.array.end.streem'
+    'name': 'string.quoted.other.streem'
+    'patterns': [
+      {
+        'match': '\\\\\\)|\\\\\\\\'
+        'name': 'constant.character.escape.streem'
+      }
+      {
+        'include': '#nest_parens'
+      }
+    ]
+  }
+  {
+    'begin': '%w([^\\w])'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.section.array.begin.streem'
+    'comment': 'array of strings literal with wildcard delimitor'
+    'end': '\\1'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.section.array.end.streem'
+    'name': 'string.quoted.other.streem'
+    'patterns': [
+      {
+        'comment': 'Cant be named because its not neccesarily an escape.'
+        'match': '\\\\.'
+      }
+    ]
+  }
+  {
+    'captures':
+      '1':
+        'name': 'punctuation.definition.constant.streem'
+    'comment': 'symbols'
+    'match': '(?<!:)(:)(?>[$a-zA-Z_]\\w*(?>[?!]|=(?![>=]))?|===?|<=>|>[>=]?|<[<=]?|[%&`/\\|]|\\*\\*?|=?~|[-+]@?|\\[\\]=?|@@?[a-zA-Z_]\\w*)'
+    'name': 'constant.other.symbol.streem'
+  }
+  {
+    'begin': '(^[ \\t]+)?(?=#)'
+    'beginCaptures':
+      '1':
+        'name': 'punctuation.whitespace.comment.leading.streem'
+    'end': '(?!\\G)'
+    'patterns': [
+      {
+        'begin': '#'
+        'beginCaptures':
+          '0':
+            'name': 'punctuation.definition.comment.streem'
+        'end': '\\n'
+        'name': 'comment.line.number-sign.streem'
+        'patterns': [
+          {
+            'include': '#yard'
+          }
+        ]
+      }
+    ]
+  }
+  {
+    'comment': '\n\t\t\tmatches questionmark-letters.\n\n\t\t\texamples (1st alternation = hex):\n\t\t\t?\\x1     ?\\x61\n\n\t\t\texamples (2nd alternation = octal):\n\t\t\t?\\0      ?\\07     ?\\017\n\n\t\t\texamples (3rd alternation = escaped):\n\t\t\t?\\n      ?\\b\n\n\t\t\texamples (4th alternation = meta-ctrl):\n\t\t\t?\\C-a    ?\\M-a    ?\\C-\\M-\\C-\\M-a\n\n\t\t\texamples (4th alternation = normal):\n\t\t\t?a       ?A       ?0 \n\t\t\t?*       ?"       ?( \n\t\t\t?.       ?#\n\t\t\t\n\t\t\t\n\t\t\tthe negative lookbehind prevents against matching\n\t\t\tp(42.tainted?)\n\t\t\t'
+    'match': '(?<!\\w)\\?(\\\\(x\\h{1,2}(?!\\h)\\b|0[0-7]{0,2}(?![0-7])\\b|[^x0MC])|(\\\\[MC]-)+\\w|[^\\s\\\\])'
+    'name': 'constant.numeric.streem'
+  }
+  {
+    'begin': '(?>\\=\\s*<<(\\w+))'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.streem'
+    'end': '^\\1$'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.streem'
+    'name': 'string.unquoted.heredoc.streem'
+    'patterns': [
+      {
+        'include': '#heredoc'
+      }
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+    ]
+  }
+  {
+    'begin': '(?><<-(\\w+))'
+    'beginCaptures':
+      '0':
+        'name': 'punctuation.definition.string.begin.streem'
+    'comment': 'heredoc with indented terminator'
+    'end': '\\s*\\1$'
+    'endCaptures':
+      '0':
+        'name': 'punctuation.definition.string.end.streem'
+    'name': 'string.unquoted.heredoc.streem'
+    'patterns': [
+      {
+        'include': '#heredoc'
+      }
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+    ]
+  }
+  {
+    'begin': '(?<=\\{|do|\\{\\s|do\\s)(\\|)'
+    'captures':
+      '1':
+        'name': 'punctuation.separator.variable.streem'
+    'end': '(\\|)'
+    'patterns': [
+      {
+        'match': '[_a-zA-Z][_a-zA-Z0-9]*'
+        'name': 'variable.other.block.streem'
+      }
+      {
+        'match': ','
+        'name': 'punctuation.separator.variable.streem'
+      }
+    ]
+  }
+  {
+    'match': '=>'
+    'name': 'punctuation.separator.key-value'
+  }
+  {
+    'match': '<<=|%=|&{1,2}=|\\*=|\\*\\*=|\\+=|\\-=|\\^=|\\|{1,2}=|<<'
+    'name': 'keyword.operator.assignment.augmented.streem'
+  }
+  {
+    'match': '<=>|<(?!<|=)|>(?!<|=|>)|<=|>=|===|==|=~|!=|!~|(?<=[ \\t])\\?'
+    'name': 'keyword.operator.comparison.streem'
+  }
+  {
+    'match': '(?<=[ \\t])!+|\\bnot\\b|&&|\\band\\b|\\|\\||\\bor\\b|\\^'
+    'name': 'keyword.operator.logical.streem'
+  }
+  {
+    'comment': ' just as above but being not a logical operation'
+    'match': '(?<!\\.)\\b(break|next|skip|return|emit)'
+    'name': 'keyword.control.pseudo-method.streem'
+  }
+  {
+    'match': '(%|&|\\*\\*|\\*|\\+|\\-|/)'
+    'name': 'keyword.operator.arithmetic.streem'
+  }
+  {
+    'match': '='
+    'name': 'keyword.operator.assignment.streem'
+  }
+  {
+    'match': '\\||~|>>'
+    'name': 'keyword.operator.other.streem'
+  }
+  {
+    'match': '\\;'
+    'name': 'punctuation.separator.statement.streem'
+  }
+  {
+    'match': ','
+    'name': 'punctuation.separator.object.streem'
+  }
+  {
+    'comment': 'Mark as namespace separator if double colons followed by capital letter'
+    'match': '(::)\\s*(?=[A-Z])'
+    'captures':
+      '1':
+        'name': 'punctuation.separator.namespace.streem'
+  }
+  {
+    'comment': 'Mark as method separator if double colons not followed by capital letter'
+    'match': '(\\.|::)\\s*(?![A-Z])'
+    'captures':
+      '1':
+        'name': 'punctuation.separator.method.streem'
+  }
+  {
+    'comment': 'Must come after method and constant separators to prefer double colons'
+    'match': ':'
+    'name': 'punctuation.separator.other.streem'
+  }
+  {
+    'match': '\\{'
+    'name': 'punctuation.section.scope.begin.streem'
+  }
+  {
+    'match': '\\}'
+    'name': 'punctuation.section.scope.end.streem'
+  }
+  {
+    'match': '\\['
+    'name': 'punctuation.section.array.begin.streem'
+  }
+  {
+    'match': '\\]'
+    'name': 'punctuation.section.array.end.streem'
+  }
+  {
+    'match': '\\(|\\)'
+    'name': 'punctuation.section.function.streem'
+  }
+]
+'repository':
+  'escaped_char':
+    'match': '\\\\(?:[0-7]{1,3}|x[\\da-fA-F]{1,2}|.)'
+    'name': 'constant.character.escape.streem'
+  'heredoc':
+    'begin': '^<<-?\\w+'
+    'end': '$'
+    'patterns': [
+      {
+        'include': '$self'
+      }
+    ]
+  'interpolated_streem':
+    'patterns': [
+      {
+        'begin': '(#\\{)'
+        'beginCaptures':
+          '0':
+            'name': 'punctuation.section.embedded.begin.streem'
+          '1':
+            'name': 'source.streem'
+        'contentName': 'source.streem'
+        'end': '(\\})'
+        'endCaptures':
+          '0':
+            'name': 'punctuation.section.embedded.end.streem'
+          '1':
+            'name': 'source.streem'
+        'name': 'meta.embedded.line.streem'
+        'patterns': [
+          {
+            'include': '#nest_curly_and_self'
+          }
+          {
+            'include': '$self'
+          }
+        ]
+      }
+      {
+        'captures':
+          '1':
+            'name': 'punctuation.definition.variable.streem'
+        'match': '(#@)[a-zA-Z_]\\w*'
+        'name': 'variable.other.readwrite.instance.streem'
+      }
+      {
+        'captures':
+          '1':
+            'name': 'punctuation.definition.variable.streem'
+        'match': '(#@@)[a-zA-Z_]\\w*'
+        'name': 'variable.other.readwrite.class.streem'
+      }
+      {
+        'captures':
+          '1':
+            'name': 'punctuation.definition.variable.streem'
+        'match': '(#\\$)[a-zA-Z_]\\w*'
+        'name': 'variable.other.readwrite.global.streem'
+      }
+    ]
+  'nest_brackets':
+    'begin': '\\['
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\]'
+    'patterns': [
+      {
+        'include': '#nest_brackets'
+      }
+    ]
+  'nest_brackets_i':
+    'begin': '\\['
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\]'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+      {
+        'include': '#nest_brackets_i'
+      }
+    ]
+  'nest_brackets_r':
+    'begin': '\\['
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\]'
+    'patterns': [
+      {
+        'include': '#regex_sub'
+      }
+      {
+        'include': '#nest_brackets_r'
+      }
+    ]
+  'nest_curly':
+    'begin': '\\{'
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\}'
+    'patterns': [
+      {
+        'include': '#nest_curly'
+      }
+    ]
+  'nest_curly_and_self':
+    'patterns': [
+      {
+        'begin': '\\{'
+        'captures':
+          '0':
+            'name': 'punctuation.section.scope.streem'
+        'end': '\\}'
+        'patterns': [
+          {
+            'include': '#nest_curly_and_self'
+          }
+        ]
+      }
+      {
+        'include': '$self'
+      }
+    ]
+  'nest_curly_i':
+    'begin': '\\{'
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\}'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+      {
+        'include': '#nest_curly_i'
+      }
+    ]
+  'nest_curly_r':
+    'begin': '\\{'
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\}'
+    'patterns': [
+      {
+        'include': '#regex_sub'
+      }
+      {
+        'include': '#nest_curly_r'
+      }
+    ]
+  'nest_ltgt':
+    'begin': '\\<'
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\>'
+    'patterns': [
+      {
+        'include': '#nest_ltgt'
+      }
+    ]
+  'nest_ltgt_i':
+    'begin': '\\<'
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\>'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+      {
+        'include': '#nest_ltgt_i'
+      }
+    ]
+  'nest_ltgt_r':
+    'begin': '\\<'
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\>'
+    'patterns': [
+      {
+        'include': '#regex_sub'
+      }
+      {
+        'include': '#nest_ltgt_r'
+      }
+    ]
+  'nest_parens':
+    'begin': '\\('
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\)'
+    'patterns': [
+      {
+        'include': '#nest_parens'
+      }
+    ]
+  'nest_parens_i':
+    'begin': '\\('
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\)'
+    'patterns': [
+      {
+        'include': '#interpolated_streem'
+      }
+      {
+        'include': '#escaped_char'
+      }
+      {
+        'include': '#nest_parens_i'
+      }
+    ]
+  'nest_parens_r':
+    'begin': '\\('
+    'captures':
+      '0':
+        'name': 'punctuation.section.scope.streem'
+    'end': '\\)'
+    'patterns': [
+      {
+        'include': '#regex_sub'
+      }
+      {
+        'include': '#nest_parens_r'
+      }
+    ]
+  'yard':
+    'name': 'comment.line.yard.streem'
+    'patterns': [
+      {
+        'include': '#yard_comment'
+      }
+      {
+        'include': '#yard_name_types'
+      }
+      {
+        'include': '#yard_tag'
+      }
+      {
+        'include': '#yard_types'
+      }
+    ]
+  'yard_comment':
+    'comment': 'For YARD tags that follow the tag-comment pattern'
+    'match': '(@)(abstract|api|author|deprecated|example|note|since|todo|version)(?=\\s)(.*)$'
+    'captures':
+      '1':
+        'name': 'comment.line.keyword.punctuation.yard.streem'
+      '2':
+        'name': 'comment.line.keyword.yard.streem'
+      '3':
+        'name': 'comment.line.string.yard.streem'
+  'yard_name_types':
+    'comment': 'For YARD tags that follow the tag-name-types-comment pattern'
+    'match': '(@)(attr|attr_reader|attr_writer|param|see|yieldparam)(?=\\s)(\\s+([a-z_][a-zA-Z_]*))?(\\s+((\\[).+(\\])))?(.*)$'
+    'captures':
+      '1':
+        'name': 'comment.line.keyword.punctuation.yard.streem'
+      '2':
+        'name': 'comment.line.keyword.yard.streem'
+      '3':
+        'name': 'comment.line.yard.streem'
+      '4':
+        'name': 'comment.line.parameter.yard.streem'
+      '5':
+        'name': 'comment.line.yard.streem'
+      '6':
+        'name': 'comment.line.type.yard.streem'
+      '7':
+        'name': 'comment.line.punctuation.yard.streem'
+      '8':
+        'name': 'comment.line.punctuation.yard.streem'
+      '9':
+        'name': 'comment.line.string.yard.streem'
+  'yard_tag':
+    'comment': 'For YARD tags that are just the tag'
+    'match': '(@)(private)$'
+    'captures':
+      '1':
+        'name': 'comment.line.keyword.punctuation.yard.streem'
+      '2':
+        'name': 'comment.line.keyword.yard.streem'
+  'yard_types':
+    'comment': 'For YARD tags that follow the tag-types-comment pattern'
+    'match': '(@)(raise|return|yieldreturn)(?=\\s)(\\s+((\\[).+(\\])))?(.*)$'
+    'captures':
+      '1':
+        'name': 'comment.line.keyword.punctuation.yard.streem'
+      '2':
+        'name': 'comment.line.keyword.yard.streem'
+      '3':
+        'name': 'comment.line.yard.streem'
+      '4':
+        'name': 'comment.line.type.yard.streem'
+      '5':
+        'name': 'comment.line.punctuation.yard.streem'
+      '6':
+        'name': 'comment.line.punctuation.yard.streem'
+      '7':
+        'name': 'comment.line.string.yard.streem'

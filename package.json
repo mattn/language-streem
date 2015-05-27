@@ -1,0 +1,11 @@
+{
+  "name": "language-streem",
+  "version": "0.0.1",
+  "description": "Streem language support in Atom",
+  "engines": {
+    "atom": "*",
+    "node": "*"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/mattn/language-streem"
+}
